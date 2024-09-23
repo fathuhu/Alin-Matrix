@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+.venv/
+Scripts/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Log, cache, dan database
+*.log
+*.sqlite3
+*.env
+.mypy_cache/
+.pytest_cache/
+.coverage
+
+# IDE/editor settings
+.vscode/
+.idea/
