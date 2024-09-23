@@ -7,8 +7,6 @@ Kalkulator matriks ini bisa mengeksekusi operasi matrik seperti pertambahan, per
 
 ## Installation
 
-Install my-project with npm
-
 ```bash
   python -m venv venv
   source venv/bin/activate   # Untuk Linux/Mac
