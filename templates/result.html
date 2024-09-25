@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hasil Operasi Matriks</title>
     <style>
-        /* Menambahkan Google Fonts untuk font yang modern */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
         body {
@@ -42,7 +41,7 @@
             border: 1px solid #ddd;
             text-align: left;
             font-size: 16px;
-            white-space: pre-wrap; /* Membuat hasil lebih rapi jika terlalu panjang */
+            white-space: pre-wrap;
             word-wrap: break-word;
         }
 
@@ -66,7 +65,6 @@
             transform: translateY(1px);
         }
 
-        /* Media query untuk perangkat kecil */
         @media (max-width: 480px) {
             .result-container {
                 width: 90%;
@@ -81,7 +79,7 @@
 <body>
     <div class="result-container">
         <h1>Hasil Operasi Matriks</h1>
-        <pre>{{ result }}</pre>
+        <pre>{{ result }}</pre> <!-- Menampilkan matriks atau array -->
         <a href="/">Kembali ke Beranda</a>
     </div>
 </body>

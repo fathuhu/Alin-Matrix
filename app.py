@@ -11,35 +11,57 @@ def index():
 # Route untuk menangani pilihan operasi
 @app.route('/choose_operation', methods=['POST'])
 def choose_operation():
-    operation = request.form['operation']
+    operation = request.form.get('operation')  # gunakan .get() untuk mencegah error
+    if not operation:
+        return "Operation not selected", 400  # Berikan respons jika operation kosong
     return render_template('input.html', operation=operation)
+
 
 # Route untuk memproses matriks dan menampilkan hasil
 @app.route('/process_matrices', methods=['POST'])
 def process_matrices():
-    matrices = request.form.getlist('matrices')
+    rows = int(request.form['rows'])
+    cols = int(request.form['cols'])
     operation = request.form['operation']
-    
-    # Konversi input ke numpy array
-    matrix1 = np.array(eval(request.form['matrix1']))
-    if 'matrix2' in request.form:
-        matrix2 = np.array(eval(request.form['matrix2']))
-    
+
+    # Konversi input Matriks 1 dari grid menjadi numpy array
+    matrix1 = np.zeros((rows, cols))
+    for i in range(rows):
+        for j in range(cols):
+            matrix1[i, j] = float(request.form.get(f'matrix1_grid_cell_{i}_{j}', 0))
+
+    matrix2 = None
+
+    # Jika operasi membutuhkan dua matriks, ambil input Matriks 2
+    if operation not in ['determinant', 'transpose']:
+        matrix2 = np.zeros((rows, cols))
+        for i in range(rows):
+            for j in range(cols):
+                matrix2[i, j] = float(request.form.get(f'matrix2_grid_cell_{i}_{j}', 0))
+
+    # Pemrosesan operasi berdasarkan yang dipilih
     result = None
-    if operation == 'addition':
+    if operation == 'addition' and matrix2 is not None:
         result = matrix1 + matrix2
-    elif operation == 'subtraction':
+    elif operation == 'subtraction' and matrix2 is not None:
         result = matrix1 - matrix2
-    elif operation == 'multiplication':
-        result = matrix1 @ matrix2
-    elif operation == 'division':
-        result = matrix1 / matrix2
-    elif operation == 'determinant':
+    elif operation == 'multiplication' and matrix2 is not None:
+        result = np.dot(matrix1, matrix2)  # Perkalian matriks
+    elif operation == 'division' and matrix2 is not None:
+        # Periksa agar tidak ada pembagian dengan 0
+        try:
+            result = matrix1 / matrix2  # Element-wise division
+        except ZeroDivisionError:
+            return "Error: Division by zero detected.", 400
+    elif operation == 'determinant' and rows == cols:
         result = np.linalg.det(matrix1)
     elif operation == 'transpose':
         result = matrix1.T
+    else:
+        return "Invalid operation or matrix dimensions", 400
 
-    return render_template('result.html', result=result)
+    # Mengirimkan hasil ke halaman result.html untuk ditampilkan
+    return render_template('result.html', result=result, operation=operation)
 
 if __name__ == '__main__':
     app.run(debug=True)
