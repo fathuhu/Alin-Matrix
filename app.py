@@ -28,7 +28,7 @@ def process_matrices():
     matrix1 = np.zeros((rows, cols))
     for i in range(rows):
         for j in range(cols):
-            matrix1[i, j] = float(request.form.get(f'matrix1_grid_cell_{i}_{j}', 0))
+            matrix1[i, j] = float(request.form.get(f'matrix1-grid_cell_{i}_{j}', 0))
 
     matrix2 = None
 
@@ -37,7 +37,7 @@ def process_matrices():
         matrix2 = np.zeros((rows, cols))
         for i in range(rows):
             for j in range(cols):
-                matrix2[i, j] = float(request.form.get(f'matrix2_grid_cell_{i}_{j}', 0))
+                matrix2[i, j] = float(request.form.get(f'matrix2-grid_cell_{i}_{j}', 0))
 
     # Pemrosesan operasi berdasarkan yang dipilih
     result = None
