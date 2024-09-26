@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pilih Operasi Matriks</title>
     <style>
-        /* Menambahkan font dari Google Fonts */
+        /* CSS untuk layout dan tampilan */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
-
         body {
             font-family: 'Roboto', sans-serif;
             background: linear-gradient(to right, #6a11cb, #2575fc);
@@ -18,89 +17,43 @@
             align-items: center;
             height: 100vh;
         }
-
         h1 {
             text-align: center;
-            text-transform: uppercase;
             color: #fff;
             margin-bottom: 20px;
-            size: 100px;
-            color: #333;
         }
-
         form {
             background-color: white;
-            padding: 100px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             width: 320px;
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
-        form:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-        }
-
         label {
             display: block;
             margin-bottom: 12px;
             font-size: 18px;
             color: #555;
         }
-
-        select {
+        select, button {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #ccc;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
-            transition: border-color 0.3s ease;
         }
-
-        select:focus {
-            border-color: #6a11cb;
-            outline: none;
-        }
-
         button {
-            width: 100%;
             background-color: #4CAF50;
             color: white;
-            padding: 12px;
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #45a049;
-            transform: translateY(-2px);
-        }
-
-        button:active {
-            transform: translateY(1px);
-        }
-
-        /* Media query untuk layar yang lebih kecil */
-        @media (max-width: 480px) {
-            form {
-                width: 90%;
-            }
-
-            button, select {
-                font-size: 16px;
-            }
         }
     </style>
 </head>
 <body>
     <form action="/choose_operation" method="POST">
-        <label for="operation">Pilih Operasi Matriks:</label>
+        <h1>Pilih Operasi Matriks</h1>
+        <label for="operation">Operasi Matriks:</label>
         <select name="operation" id="operation">
             <option value="addition">Penjumlahan</option>
             <option value="subtraction">Pengurangan</option>
@@ -108,9 +61,13 @@
             <option value="division">Pembagian</option>
             <option value="determinant">Determinan</option>
             <option value="transpose">Transpose</option>
+            <option value="scalar_multiplication">Perkalian Skalar</option>
+            <option value="power">Pangkat</option>
+            <option value="inverse">Invers</option>
+            <option value="row_echelon">OBE</option>
+            <option value="solve_linear_system">SPL</option>
         </select>
         <button type="submit">Pilih Operasi</button>
     </form>
-    
 </body>
 </html>
