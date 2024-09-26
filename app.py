@@ -22,12 +22,8 @@ def process_matrices():
     matrix1 = np.zeros((rows, cols))
     for i in range(rows):
         for j in range(cols):
-<<<<<<< HEAD
-            matrix1[i, j] = float(request.form.get(f'matrix1-grid_cell_{i}_{j}', 0))
-=======
             cell_value = request.form.get(f'matrix1-grid_cell_{i}_{j}')
             matrix1[i, j] = float(cell_value) if cell_value else 0
->>>>>>> f1afa3652627189447a61027b04f0d82f7e0d3e7
 
     # Mengambil nilai matriks 2 jika diperlukan
     matrix2 = None
@@ -35,15 +31,11 @@ def process_matrices():
         matrix2 = np.zeros((rows, cols))
         for i in range(rows):
             for j in range(cols):
-<<<<<<< HEAD
-                matrix2[i, j] = float(request.form.get(f'matrix2-grid_cell_{i}_{j}', 0))
-=======
                 cell_value = request.form.get(f'matrix2-grid_cell_{i}_{j}')
                 matrix2[i, j] = float(cell_value) if cell_value else 0
 
     # Mengambil nilai skalar jika diperlukan
     scalar = float(request.form.get('scalar', 1))
->>>>>>> f1afa3652627189447a61027b04f0d82f7e0d3e7
 
     # Pemrosesan operasi berdasarkan yang dipilih
     result = None

@@ -13,40 +13,43 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             height: 100vh;
+            padding-top: 20px;
         }
         form {
             background-color: white;
-            padding: 30px;
+            padding: 20px;
+            padding-bottom: 40px; 
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 600px; /* Batas maksimal lebar form */
+            width: auto;
+            margin: 20px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden; /* Agar elemen di dalam tidak meluber */
+            overflow: hidden;
         }
         label, input, button {
             display: block;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+        }
+        .matrix-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         .matrix-grid {
             display: grid;
             gap: 5px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-height: 150px; /* Membatasi tinggi maksimal grid */
-            overflow-y: auto; /* Mengaktifkan scroll jika terlalu panjang */
-            padding-right: 10px; /* Sedikit ruang untuk scrollbar */
+            flex: 1;
         }
-
-        /* Pastikan input lebih fleksibel terhadap lebar grid */
+        /* Responsif input lebih fleksibel terhadap lebar grid */
         input[type="number"] {
-            width: 100%; /* Ubah width menjadi 100% */
-            height: 50px;
+            width: 100%;
+            height: 40px;
             text-align: center;
-            font-size: 18px;
+            font-size: 16px;
             border: 2px solid #ccc;
             border-radius: 8px;
             transition: border-color 0.3s ease;
@@ -61,10 +64,10 @@
             width: 100%;
             background-color: #007BFF;
             color: white;
-            padding: 12px;
+            padding: 10px;
             border: none;
             border-radius: 8px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
@@ -79,13 +82,45 @@
             transform: translateY(1px);
         }
 
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px; /* Memberi jarak antara tombol Kembali dan Eksekusi */
+        }
+
+        .back-button {
+            background-color: #fc0000; /* Warna abu-abu untuk tombol kembali */
+        }
+
+        .back-button:hover {
+            background-color: #af0404;
+        }
+
+        .back-button:active {
+            transform: translateY(1px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        /* Aturan untuk layar kecil */
         @media (max-width: 480px) {
             form {
                 width: 90%;
             }
 
             button, input, label {
-                font-size: 16px;
+                font-size: 14px;
+            }
+            .matrix-container {
+                flex-direction: column;
+            }
+
+            .button-container {
+                flex-direction: column; /* Tombol ditumpuk pada layar kecil */
             }
         }
     </style>
@@ -99,30 +134,39 @@
         <label for="cols">Jumlah Kolom:</label>
         <input type="number" id="cols" name="cols" value="2" min="1">
 
-        <!-- Grid untuk input matriks 1 -->
-        <label for="matrix1">Matriks 1:</label>
-        <div id="matrix1-grid" class="matrix-grid"></div>
+        <!-- Container untuk kedua grid berdampingan -->
+        <div class="matrix-container">
+            <div>
+                <label for="matrix1">Matriks 1:</label>
+                <div id="matrix1-grid" class="matrix-grid"></div>
+            </div>
 
-        <!-- Grid untuk matriks 2, jika diperlukan -->
-        {% if operation not in ['determinant', 'transpose', 'scalar_multiplication', 'power', 'inverse', 'row_echelon', 'solve_linear_system'] %}
-        <label for="matrix2">Matriks 2:</label>
-        <div id="matrix2-grid" class="matrix-grid"></div>
-        {% endif %}
+            {% if operation not in ['determinant', 'transpose', 'scalar_multiplication', 'power', 'inverse', 'row_echelon', 'solve_linear_system'] %}
+            <div>
+                <label for="matrix2">Matriks 2:</label>
+                <div id="matrix2-grid" class="matrix-grid"></div>
+            </div>
+            {% endif %}
+        </div>
 
-        <!-- Input skalar jika diperlukan -->
         {% if operation == 'scalar_multiplication' %}
         <label for="scalar">Masukkan Skalar:</label>
         <input type="number" id="scalar" name="scalar" value="1">
         {% endif %}
 
-        <button type="submit">Eksekusi</button>
+        <!-- Container untuk tombol kembali dan eksekusi -->
+        <div class="button-container">
+            <button type="button" class="back-button" onclick="window.location.href='{{ url_for('index') }}'">Kembali</button>
+            <button type="submit">Eksekusi</button>
+        </div>
     </form>
 
     <script>
         function createMatrixGrid(containerId, rows, cols) {
             let container = document.getElementById(containerId);
-            container.innerHTML = ''; // Bersihkan grid sebelumnya
-            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`; // Grid dinamis sesuai kolom
+            container.innerHTML = ''; 
+            container.style.gridTemplateColumns = `repeat(${cols}, minmax(50px, 1fr))`; // Membuat kolom lebih fleksibel
+            container.style.gridAutoRows = `minmax(40px, auto)`; // Membuat baris lebih fleksibel
 
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
