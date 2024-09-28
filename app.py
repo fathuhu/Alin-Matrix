@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import numpy as np
 
 app = Flask(__name__)
@@ -6,11 +6,6 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/choose_operation', methods=['POST'])
-def choose_operation():
-    operation = request.form['operation']
-    return render_template('input.html', operation=operation)
 
 @app.route('/process_matrices', methods=['POST'])
 def process_matrices():
@@ -34,40 +29,34 @@ def process_matrices():
                 cell_value = request.form.get(f'matrix2-grid_cell_{i}_{j}')
                 matrix2[i, j] = float(cell_value) if cell_value else 0
 
-    # Mengambil nilai skalar jika diperlukan
-    scalar = float(request.form.get('scalar', 1))
-
-    # Pemrosesan operasi berdasarkan yang dipilih
-    result = None
-    if operation == 'addition' and matrix2 is not None:
-        result = matrix1 + matrix2
-    elif operation == 'subtraction' and matrix2 is not None:
-        result = matrix1 - matrix2
-    elif operation == 'multiplication' and matrix2 is not None:
-        result = np.dot(matrix1, matrix2)
-    elif operation == 'division' and matrix2 is not None:
-        result = matrix1 / matrix2
-    elif operation == 'determinant' and rows == cols:
+    # Proses operasi sesuai pilihan
+    if operation == 'addition':
+        result = np.add(matrix1, matrix2)
+    elif operation == 'subtraction':
+        result = np.subtract(matrix1, matrix2)
+    elif operation == 'multiplication':
+        result = np.matmul(matrix1, matrix2)
+    elif operation == 'determinant':
         result = np.linalg.det(matrix1)
     elif operation == 'transpose':
         result = matrix1.T
     elif operation == 'scalar_multiplication':
-        result = scalar * matrix1
-    elif operation == 'power' and rows == cols:
-        result = np.linalg.matrix_power(matrix1, int(scalar))
-    elif operation == 'inverse' and rows == cols:
-        try:
-            result = np.linalg.inv(matrix1)
-        except np.linalg.LinAlgError:
-            result = "Matriks tidak dapat dibalik (singular)."
+        scalar = float(request.form['scalar'])
+        result = matrix1 * scalar
+    elif operation == 'power':
+        result = np.linalg.matrix_power(matrix1, 2)  # Ganti sesuai kebutuhan
+    elif operation == 'inverse':
+        result = np.linalg.inv(matrix1)
     elif operation == 'row_echelon':
         result = row_echelon(matrix1)
     elif operation == 'solve_linear_system':
         result = solve_linear_system(matrix1)
-    else:
-        return "Invalid operation or matrix dimensions", 400
 
-    return render_template('result.html', result=result, operation=operation)
+    return str(result)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 def row_echelon(matrix):
     # Implementasi sederhana OBE (Row Echelon Form)

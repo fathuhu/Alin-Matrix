@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilih Operasi Matriks</title>
+    <title>Kalkulator Matriks</title>
     <style>
-        /* CSS untuk layout dan tampilan */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
         body {
             font-family: 'Roboto', sans-serif;
@@ -16,27 +15,20 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            flex-direction: column;
         }
         h1 {
-            text-align: center;
             color: #fff;
-            margin-bottom: 20px;
         }
-        form {
+        form, .result-container {
             background-color: white;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            width: 320px;
-            text-align: center;
+            width: 400px;
+            margin-bottom: 20px;
         }
-        label {
-            display: block;
-            margin-bottom: 12px;
-            font-size: 18px;
-            color: #555;
-        }
-        select, button {
+        select, button, input {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
@@ -48,17 +40,32 @@
             border: none;
             cursor: pointer;
         }
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 5px;
+        }
+        input[type="number"] {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+        }
+        .result-container {
+            display: none;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <form action="/choose_operation" method="POST">
-        <h1>Pilih Operasi Matriks</h1>
-        <label for="operation">Operasi Matriks:</label>
+    <h1>Kalkulator Matriks</h1>
+
+    <!-- Form untuk memilih operasi matriks -->
+    <form id="operation-form">
+        <label for="operation">Pilih Operasi Matriks:</label>
         <select name="operation" id="operation">
             <option value="addition">Penjumlahan</option>
             <option value="subtraction">Pengurangan</option>
             <option value="multiplication">Perkalian</option>
-            <option value="division">Pembagian</option>
             <option value="determinant">Determinan</option>
             <option value="transpose">Transpose</option>
             <option value="scalar_multiplication">Perkalian Skalar</option>
@@ -67,7 +74,106 @@
             <option value="row_echelon">OBE</option>
             <option value="solve_linear_system">SPL</option>
         </select>
-        <button type="submit">Pilih Operasi</button>
+        <button type="button" onclick="showMatrixInput()">Pilih Operasi</button>
     </form>
+
+    <!-- Form untuk input matriks -->
+    <form id="matrix-form" style="display:none;">
+        <label for="rows">Jumlah Baris:</label>
+        <input type="number" id="rows" name="rows" value="2" min="1">
+        <label for="cols">Jumlah Kolom:</label>
+        <input type="number" id="cols" name="cols" value="2" min="1">
+
+        <!-- Grid input untuk Matriks 1 -->
+        <label>Matriks 1:</label>
+        <div id="matrix1-grid" class="matrix-grid"></div>
+
+        <!-- Grid input untuk Matriks 2 jika dibutuhkan -->
+        <label id="matrix2-label" style="display:none;">Matriks 2:</label>
+        <div id="matrix2-grid" class="matrix-grid" style="display:none;"></div>
+
+        <!-- Input untuk skalar jika dibutuhkan -->
+        <label id="scalar-label" style="display:none;">Masukkan Skalar:</label>
+        <input type="number" id="scalar" name="scalar" value="1" style="display:none;">
+
+        <button type="button" onclick="executeMatrixOperation()">Eksekusi</button>
+    </form>
+
+    <!-- Tampilan untuk hasil operasi matriks -->
+    <div class="result-container" id="result-container">
+        <h2>Hasil Operasi Matriks</h2>
+        <pre id="result"></pre>
+        <button onclick="resetForm()">Hitung Ulang</button>
+    </div>
+
+    <script>
+        function createMatrixGrid(containerId, rows, cols) {
+            let container = document.getElementById(containerId);
+            container.innerHTML = '';
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    let input = document.createElement('input');
+                    input.type = 'number';
+                    input.name = `${containerId}_cell_${i}_${j}`;
+                    input.placeholder = `M[${i}][${j}]`;
+                    container.appendChild(input);
+                }
+            }
+        }
+
+        function showMatrixInput() {
+            document.getElementById('matrix-form').style.display = 'block';
+            let operation = document.getElementById('operation').value;
+
+            // Tampilkan atau sembunyikan input yang diperlukan
+            if (['addition', 'subtraction', 'multiplication'].includes(operation)) {
+                document.getElementById('matrix2-grid').style.display = 'grid';
+                document.getElementById('matrix2-label').style.display = 'block';
+            } else {
+                document.getElementById('matrix2-grid').style.display = 'none';
+                document.getElementById('matrix2-label').style.display = 'none';
+            }
+
+            if (operation == 'scalar_multiplication') {
+                document.getElementById('scalar').style.display = 'block';
+                document.getElementById('scalar-label').style.display = 'block';
+            } else {
+                document.getElementById('scalar').style.display = 'none';
+                document.getElementById('scalar-label').style.display = 'none';
+            }
+
+            let rows = document.getElementById('rows').value;
+            let cols = document.getElementById('cols').value;
+            createMatrixGrid('matrix1-grid', rows, cols);
+            if (document.getElementById('matrix2-grid').style.display == 'grid') {
+                createMatrixGrid('matrix2-grid', rows, cols);
+            }
+        }
+
+        function executeMatrixOperation() {
+            let formData = new FormData(document.getElementById('matrix-form'));
+            let operation = document.getElementById('operation').value;
+            formData.append('operation', operation);
+
+            fetch('/process_matrices', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                document.getElementById('result').innerText = result;
+                document.getElementById('result-container').style.display = 'block';
+                document.getElementById('matrix-form').style.display = 'none';
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function resetForm() {
+            document.getElementById('matrix-form').reset();
+            document.getElementById('matrix-form').style.display = 'none';
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('operation-form').reset();
+        }
+    </script>
 </body>
 </html>
