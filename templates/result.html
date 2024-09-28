@@ -45,12 +45,32 @@
             text-decoration: none;
             border-radius: 8px;
         }
+        .steps {
+            text-align: left;
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .step {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="result-container">
         <h1>Hasil Operasi Matriks</h1>
         <pre>{{ result }}</pre>
+        <!-- Tambahkan langkah-langkah jika tersedia -->
+        {% if steps %}
+        <div class="steps">
+            <h3>Langkah-Langkah:</h3>
+            {% for step in steps %}
+                <div class="step">{{ step }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
         <a href="/">Kembali ke Beranda</a>
     </div>
 </body>

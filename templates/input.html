@@ -44,7 +44,6 @@
             gap: 5px;
             flex: 1;
         }
-        /* Responsif input lebih fleksibel terhadap lebar grid */
         input[type="number"] {
             width: 100%;
             height: 40px;
@@ -54,12 +53,10 @@
             border-radius: 8px;
             transition: border-color 0.3s ease;
         }
-
         input[type="number"]:focus {
             border-color: #007BFF;
             outline: none;
         }
-
         button {
             width: 100%;
             background-color: #007BFF;
@@ -72,56 +69,107 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
         }
-
         button:hover {
             background-color: #0056b3;
             transform: translateY(-2px);
         }
-
         button:active {
             transform: translateY(1px);
         }
-
         .button-container {
             display: flex;
             justify-content: space-between;
-            gap: 10px; /* Memberi jarak antara tombol Kembali dan Eksekusi */
+            gap: 10px;
         }
-
         .back-button {
-            background-color: #fc0000; /* Warna abu-abu untuk tombol kembali */
+            background-color: #fc0000;
         }
-
         .back-button:hover {
             background-color: #af0404;
         }
-
         .back-button:active {
             transform: translateY(1px);
         }
-
         h1 {
             text-align: center;
             color: #000000;
             margin-bottom: 20px;
         }
-
-        /* Aturan untuk layar kecil */
+        label {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            margin-right: 10px;
+            color: #333;
+        }
+        
+        select {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* Style untuk tampilan dropdown saat difokuskan */
+        select:focus {
+            outline: none;
+            border-color: #66afe9;
+            box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+            background-color: #fff;
+        }
+        
+        /* Style saat pointer berada di atas dropdown */
+        select:hover {
+            border-color: #888;
+        }
+        
+        /* Style untuk menata opsi dropdown */
+        option {
+            font-size: 16px;
+            padding: 5px;
+        }
+        
+        /* Style untuk kontainer elemen dropdown */
+        #method {
+            margin-top: 10px;
+        }
+        
+        /* Style untuk posisi dan jarak */
+        select, label {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        /* Container styling jika ada div pembungkus */
+        .dropdown-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        /* Untuk memisahkan dropdown dari elemen lainnya */
+        .dropdown-container + * {
+            margin-top: 15px;
+        }
+        
         @media (max-width: 480px) {
             form {
                 width: 90%;
             }
-
             button, input, label {
                 font-size: 14px;
             }
             .matrix-container {
                 flex-direction: column;
             }
-
             .button-container {
-                flex-direction: column; /* Tombol ditumpuk pada layar kecil */
+                flex-direction: column;
             }
+            
+            
         }
     </style>
 </head>
@@ -129,12 +177,26 @@
     <form action="/process_matrices" method="POST">
         <h1>Masukkan Matriks untuk {{ operation }}</h1>
         <input type="hidden" name="operation" value="{{ operation }}">
-        <label for="rows">Jumlah Baris:</label>
-        <input type="number" id="rows" name="rows" value="2" min="1">
-        <label for="cols">Jumlah Kolom:</label>
-        <input type="number" id="cols" name="cols" value="2" min="1">
 
-        <!-- Container untuk kedua grid berdampingan -->
+        <label for="rows1">Jumlah Baris Matriks 1:</label>
+        <input type="number" id="rows1" name="rows1" value="2" min="1">
+        <label for="cols1">Jumlah Kolom Matriks 1:</label>
+        <input type="number" id="cols1" name="cols1" value="2" min="1" oninput="validateMatrixDimensions('{{ operation }}')">
+
+        {% if operation not in ['determinant', 'transpose', 'scalar_multiplication', 'power', 'inverse', 'row_echelon', 'solve_linear_system'] %}
+        <div id="matrix2-container">
+            <label for="rows2">Jumlah Baris Matriks 2:</label>
+            <input type="number" id="rows2" name="rows2" value="2" min="1" oninput="validateMatrixDimensions('{{ operation }}')">
+            <label for="cols2">Jumlah Kolom Matriks 2:</label>
+            <input type="number" id="cols2" name="cols2" value="2" min="1">
+        </div>
+        {% endif %}
+
+        <!-- Peringatan untuk dimensi yang tidak cocok -->
+        <div id="dimension-warning" style="color: red; font-size: 14px; display: none;">
+            Peringatan: Jumlah kolom Matriks 1 harus sama dengan jumlah baris Matriks 2 untuk operasi perkalian!
+        </div>
+
         <div class="matrix-container">
             <div>
                 <label for="matrix1">Matriks 1:</label>
@@ -150,14 +212,27 @@
         </div>
 
         {% if operation == 'scalar_multiplication' %}
-        <label for="scalar">Masukkan Skalar:</label>
-        <input type="number" id="scalar" name="scalar" value="1">
+        <label for="scalar">Skalar:</label>
+        <input type="number" id="scalar" name="scalar" value="2">
         {% endif %}
 
-        <!-- Container untuk tombol kembali dan eksekusi -->
+        {% if operation == 'power' %}
+        <label for="power">Pangkat:</label>
+        <input type="number" id="power" name="power" value="2">
+        {% endif %}
+
+        {% if operation == 'solve_linear_system' %}
+        <label for="method">Metode:</label>
+        <select id="method" name="method">
+            <option value="gauss">Eliminasi Gauss</option>
+            <option value="gauss-jordan">Eliminasi Gauss-Jordan</option>
+        </select>
+        {% endif %}
+
+
         <div class="button-container">
             <button type="button" class="back-button" onclick="window.location.href='{{ url_for('index') }}'">Kembali</button>
-            <button type="submit">Eksekusi</button>
+            <button type="submit" id="execute-button" {% if operation == "multiplication" %}disabled{% endif %}>Eksekusi</button>
         </div>
     </form>
 
@@ -165,8 +240,8 @@
         function createMatrixGrid(containerId, rows, cols) {
             let container = document.getElementById(containerId);
             container.innerHTML = ''; 
-            container.style.gridTemplateColumns = `repeat(${cols}, minmax(50px, 1fr))`; // Membuat kolom lebih fleksibel
-            container.style.gridAutoRows = `minmax(40px, auto)`; // Membuat baris lebih fleksibel
+            container.style.gridTemplateColumns = `repeat(${cols}, minmax(50px, 1fr))`; 
+            container.style.gridAutoRows = `minmax(40px, auto)`; 
 
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
@@ -180,20 +255,62 @@
         }
 
         function updateGrids() {
-            let rows = document.getElementById('rows').value;
-            let cols = document.getElementById('cols').value;
-            createMatrixGrid('matrix1-grid', rows, cols);
-            if (document.getElementById('matrix2-grid')) {
-                createMatrixGrid('matrix2-grid', rows, cols);
+            let rows1 = document.getElementById('rows1').value;
+            let cols1 = document.getElementById('cols1').value;
+            createMatrixGrid('matrix1-grid', rows1, cols1);
+
+            // Hanya buat grid untuk matriks 2 jika diperlukan
+            if (document.getElementById('matrix2-container')) {
+                let rows2 = document.getElementById('rows2').value;
+                let cols2 = document.getElementById('cols2').value;
+                createMatrixGrid('matrix2-grid', rows2, cols2);
             }
         }
 
-        document.getElementById('rows').addEventListener('input', updateGrids);
-        document.getElementById('cols').addEventListener('input', updateGrids);
+        function validateMatrixDimensions(operation) {
+            // Ambil nilai dari input matriks 1 dan matriks 2
+            var cols1 = document.getElementById("cols1").value;
+            var rows2 = document.getElementById("rows2").value;
+        
+            // Ambil elemen peringatan dan tombol eksekusi
+            var warningText = document.getElementById("dimension-warning");
+            var executeButton = document.getElementById("execute-button");
+        
+            // Hanya lakukan validasi saat operasi adalah perkalian
+            if (operation === 'multiplication') {
+                // Periksa apakah kolom matriks 1 sama dengan baris matriks 2
+                if (cols1 == rows2) {
+                    // Jika sama, sembunyikan peringatan dan aktifkan tombol eksekusi
+                    warningText.style.display = "none";
+                    executeButton.disabled = false;
+                } else {
+                    // Jika tidak sama, tampilkan peringatan dan nonaktifkan tombol eksekusi
+                    warningText.style.display = "block";
+                    executeButton.disabled = true;
+                }
+            } else {
+                // Untuk operasi selain perkalian, sembunyikan peringatan dan aktifkan tombol
+                warningText.style.display = "none";
+                executeButton.disabled = false;
+            }
+        }
 
         window.onload = function() {
+            validateMatrixDimensions('{{ operation }}');
+        }
+
+        // Event listener untuk perubahan baris dan kolom
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('rows1').addEventListener('input', updateGrids);
+            document.getElementById('cols1').addEventListener('input', updateGrids);
+            if (document.getElementById('rows2')) {
+                document.getElementById('rows2').addEventListener('input', updateGrids);
+                document.getElementById('cols2').addEventListener('input', updateGrids);
+            }
+
             updateGrids();
-        };
+        });
     </script>
 </body>
+
 </html>
