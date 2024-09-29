@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request
 import numpy as np
 
-
 app = Flask(__name__)
+
+def truncate_number(value, decimal_places):
+    """Fungsi untuk memotong angka tanpa pembulatan."""
+    factor = 10 ** decimal_places
+    return int(value * factor) / factor
 
 @app.route('/')
 def index():
@@ -19,7 +23,7 @@ def process_matrices():
     cols1 = int(request.form['cols1'])
     operation = request.form['operation']
     steps = []  # Inisialisasi steps sebagai list kosong
-    method = request.form.get('method', 'gauss')  # Tambahkan nilai default 'gauss' jika tidak ada input method
+    method = request.form.get('method', 'gauss')  # Nilai default 'gauss' jika tidak ada input method
 
     if operation not in ['determinant', 'transpose', 'scalar_multiplication', 'power', 'inverse', 'row_echelon', 'solve_linear_system']:
         rows2 = int(request.form['rows2'])
@@ -69,10 +73,11 @@ def process_matrices():
                 result = "Error: Matriks tidak dapat dibalik (singular)."
         elif operation == 'row_echelon':
             result, steps = row_echelon_with_steps(matrix1)
-        elif operation == 'solve_linear_system' :
+        elif operation == 'solve_linear_system':
             result, steps = solve_linear_system(matrix1, method)
         else:
             return "Error: Operasi tidak valid atau dimensi matriks tidak cocok.", 400
+
     except ValueError as ve:
         result = f"Error: Nilai input tidak valid. {str(ve)}"
     except TypeError as te:
@@ -80,11 +85,14 @@ def process_matrices():
     except Exception as e:
         result = f"Error tidak terduga: {str(e)}"
 
+    # Potong angka di belakang koma sebelum mengirim ke template
+    if isinstance(result, np.ndarray):
+        result = np.vectorize(lambda x: truncate_number(x, 2))(result)
+
     # Render template dengan menambahkan variabel `steps`
     return render_template('result.html', result=result, operation=operation, steps=steps)
 
 def row_echelon_with_steps(matrix):
-    # Salin matriks asli untuk diproses dan pastikan dalam bentuk float
     m = matrix.copy().astype(float)
     rows, cols = m.shape
     steps = []  # List untuk menyimpan setiap langkah
@@ -96,14 +104,12 @@ def row_echelon_with_steps(matrix):
                 m[[i, max_row]] = m[[max_row, i]]  # Tukar baris
                 steps.append(f"Tukar baris {i+1} dengan baris {max_row+1}:\n{m}\n")
         
-        # Normalisasi baris dengan pivot (buat elemen utama menjadi 1)
-        if m[i, i] != 0:
+        if m[i, i] != 0:  # Normalisasi baris dengan pivot
             pivot = m[i, i]
             m[i] = m[i] / pivot
             steps.append(f"Normalisasi baris {i+1} dengan pivot {pivot}:\n{m}\n")
         
-        # Eliminasi elemen di bawah elemen pivot
-        for j in range(i + 1, rows):
+        for j in range(i + 1, rows):  # Eliminasi elemen di bawah pivot
             if m[j, i] != 0:
                 factor = m[j, i]
                 m[j] = m[j] - factor * m[i]
@@ -128,7 +134,7 @@ def solve_linear_system(matrix, method):
 
         result = "Solusi variabel yang dicari:\n"
         for i, sol in enumerate(solution):
-            result += f"x{i+1} = {sol:.2f}\n"
+            result += f"x{i+1} = {truncate_number(sol, 2)}\n"  # Memotong solusi juga
 
         return result, steps
     except np.linalg.LinAlgError:
@@ -139,28 +145,24 @@ def solve_linear_system(matrix, method):
 def gauss_elimination(matrix):
     m = matrix.copy().astype(float)
     rows, cols = m.shape
-    steps = []  # List untuk menyimpan langkah-langkah eliminasi
+    steps = []
 
     for i in range(min(rows, cols - 1)):
-        # Partial pivoting: Cari elemen terbesar di kolom sebagai pivot
         max_row = np.argmax(np.abs(m[i:, i])) + i
         if m[max_row, i] != 0:
             if max_row != i:
                 m[[i, max_row]] = m[[max_row, i]]  # Tukar baris
                 steps.append(f"Tukar baris {i+1} dengan baris {max_row+1}:\n{m}\n")
 
-            # Normalisasi baris dengan pivot
             pivot = m[i, i]
             m[i] = m[i] / pivot
             steps.append(f"Normalisasi baris {i+1} dengan pivot {pivot}:\n{m}\n")
 
-            # Eliminasi elemen di bawah pivot
             for j in range(i + 1, rows):
                 factor = m[j, i]
                 m[j] = m[j] - factor * m[i]
                 steps.append(f"Eliminasi elemen pada baris {j+1} menggunakan baris {i+1}:\n{m}\n")
 
-    # Back substitution untuk menemukan solusi
     solution = np.zeros(rows)
     for i in range(rows - 1, -1, -1):
         solution[i] = (m[i, -1] - np.dot(m[i, i+1:cols-1], solution[i+1:])) / m[i, i]
@@ -171,29 +173,25 @@ def gauss_elimination(matrix):
 def gauss_jordan_elimination(matrix):
     m = matrix.copy().astype(float)
     rows, cols = m.shape
-    steps = []  # List untuk menyimpan langkah-langkah eliminasi
+    steps = []
 
     for i in range(min(rows, cols - 1)):
-        # Partial pivoting: Cari elemen terbesar di kolom sebagai pivot
         max_row = np.argmax(np.abs(m[i:, i])) + i
         if m[max_row, i] != 0:
             if max_row != i:
                 m[[i, max_row]] = m[[max_row, i]]  # Tukar baris
                 steps.append(f"Tukar baris {i+1} dengan baris {max_row+1}:\n{m}\n")
 
-            # Normalisasi baris dengan pivot
             pivot = m[i, i]
             m[i] = m[i] / pivot
             steps.append(f"Normalisasi baris {i+1} dengan pivot {pivot}:\n{m}\n")
 
-            # Eliminasi elemen di atas dan di bawah pivot
             for j in range(rows):
                 if j != i:
                     factor = m[j, i]
                     m[j] = m[j] - factor * m[i]
                     steps.append(f"Eliminasi elemen pada baris {j+1} menggunakan baris {i+1}:\n{m}\n")
 
-    # Solusi dari matriks Gauss-Jordan
     solution = m[:, -1]
     return solution, steps
 
