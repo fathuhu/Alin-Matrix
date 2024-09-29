@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hasil Operasi Matriks</title>
+    <title>Kalkulator Matrix: Hasil Operasi Matriks</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
         body {
@@ -22,55 +22,138 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            width: 450px;
+            width: 60%;
+            max-width: 800px;
             text-align: center;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         h1 {
             color: #444;
             margin-bottom: 20px;
         }
-        pre {
+        .matrix-result {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        table {
+            border-collapse: collapse;
+            width: auto;
+            margin: 0 auto;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #0072ff;
+            color: white;
+            font-weight: 500;
+        }
+        td {
             background-color: #f0f0f5;
+        }
+        .text-result {
+            font-size: 18px;
+            color: #444;
+            background-color: #f9f9f9;
             padding: 15px;
             border-radius: 8px;
-            text-align: left;
-            font-size: 16px;
-        }
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
+            margin-bottom: 30px;
         }
         .steps {
             text-align: left;
             background-color: #e8f0fe;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             margin-top: 20px;
             font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 300px; /* Batas maksimum tinggi untuk scroll */
+            overflow-y: auto; /* Scroll pada langkah */
         }
         .step {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f7faff;
+            border-left: 4px solid #0072ff;
+            border-radius: 5px;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #0072ff;
+            margin-right: 8px;
+        }
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        a:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="result-container">
         <h1>Hasil Operasi Matriks</h1>
-        <pre>{{ result }}</pre>
+
+        <!-- Kondisi jika hasil berupa teks, matriks, atau keduanya -->
+        {% if result.text and result.matrix %}
+            <!-- Jika `result` mengandung teks dan matriks -->
+            <div class="text-result">{{ result.text }}</div>
+            <div class="matrix-result">
+                <table>
+                    {% for row in result.matrix %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% elif result is string %}
+            <!-- Jika hasil berupa teks -->
+            <div class="text-result">{{ result }}</div>
+        {% elif result is iterable and result[0] is iterable %}
+            <!-- Jika hasil berupa matriks -->
+            <div class="matrix-result">
+                <table>
+                    {% for row in result %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <!-- Tampilkan hasil dengan cara lain jika format tidak dikenali -->
+            <div class="text-result">{{ result }}</div>
+        {% endif %}
+
         <!-- Tambahkan langkah-langkah jika tersedia -->
         {% if steps %}
         <div class="steps">
             <h3>Langkah-Langkah:</h3>
             {% for step in steps %}
-                <div class="step">{{ step }}</div>
+                <div class="step">
+                    <span class="step-number">Langkah {{ loop.index }}:</span> {{ step }}
+                </div>
             {% endfor %}
         </div>
         {% endif %}
+
+        <!-- Tombol untuk kembali ke beranda -->
         <a href="/">Kembali ke Beranda</a>
     </div>
 </body>

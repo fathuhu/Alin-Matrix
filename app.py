@@ -69,7 +69,7 @@ def process_matrices():
                 result = "Error: Matriks tidak dapat dibalik (singular)."
         elif operation == 'row_echelon':
             result, steps = row_echelon_with_steps(matrix1)
-        elif operation == 'solve_linear_system' and rows1 == cols1:
+        elif operation == 'solve_linear_system' :
             result, steps = solve_linear_system(matrix1, method)
         else:
             return "Error: Operasi tidak valid atau dimensi matriks tidak cocok.", 400
