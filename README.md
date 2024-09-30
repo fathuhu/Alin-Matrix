@@ -13,6 +13,10 @@ Kalkulator matriks ini adalah sebuah aplikasi web yang bisa mengeksekusi berbaga
   - Transpose Matriks
   - Determinan Matriks
   - OBE (Operasi Baris Elementer) Matriks
+  - Landing Page
+  - About Program
+  - History
+  - Hapus History
   
 - **Sistem Persamaan Linear (SPL):**
   - Penyelesaian SPL menggunakan Metode Eliminasi Gauss
